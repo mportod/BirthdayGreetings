@@ -19,20 +19,18 @@ namespace BirthdayGreetings
 
         public void Send(DateOnly date)
         {
-            _sender.Send(new Friend
+            var currentDate = _clock.GetCurrentDate();
+            var friends = _friendsReader.GetFriends();
+            var birthdayFriends = GetBirthdayFriends(friends, currentDate);
+            foreach (var birthdayFriend in birthdayFriends)
             {
-                FirstName = "Mary",
-                LastName = "Ann",
-                BirthDate = new DateOnly(1975, 09, 11),
-                Email = "mary.ann@foobar.com"
-            });
-            _sender.Send(new Friend
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                BirthDate = new DateOnly(1982, 10, 08),
-                Email = "john.doe@foobar.com"
-            });
+                _sender.Send(birthdayFriend);
+            }
+        }
+
+        private static IEnumerable<Friend> GetBirthdayFriends(IEnumerable<Friend> friends, DateOnly currentDate)
+        {
+            return friends.Where(f => f.BirthDate.Month == currentDate.Month && f.BirthDate.Day == currentDate.Day);
         }
     }
 }
