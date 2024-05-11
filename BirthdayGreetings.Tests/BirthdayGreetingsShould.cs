@@ -63,6 +63,19 @@ namespace BirthdayGreetings.Tests
             sender.DidNotReceive().Send(Arg.Is<Friend>(f => f.FirstName == "John" && f.LastName == "Doe"));
         }
 
+        [Test]
+        public void not_send_message_when_no_one_is_on_birthday()
+        {
+            var todayDate = new DateOnly(2024, 01, 01);
+            var friends = GetFriends();
+            clock.GetCurrentDate().Returns(todayDate);
+            friendsReader.GetFriends().Returns(friends);
+
+            sut.Send(todayDate);
+
+            sender.DidNotReceive().Send(Arg.Any<Friend>());
+        }
+
         private static List<Friend> GetFriends()
         {
             var friends = new List<Friend>

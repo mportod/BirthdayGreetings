@@ -8,4 +8,9 @@ public class Friend
     public string LastName { get; set; }
     public DateOnly BirthDate { get; set; }
     public string Email { get; set; }
+
+    public bool IsMyBirthday(DateOnly date)
+    {
+        return BirthDate.Month == date.Month && BirthDate.Day == date.Day;
+    }
 }

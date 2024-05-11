@@ -30,7 +30,7 @@ namespace BirthdayGreetings
 
         private static IEnumerable<Friend> GetBirthdayFriends(IEnumerable<Friend> friends, DateOnly currentDate)
         {
-            return friends.Where(f => f.BirthDate.Month == currentDate.Month && f.BirthDate.Day == currentDate.Day);
+            return friends.Where(f => f.IsMyBirthday(currentDate));
         }
     }
 }

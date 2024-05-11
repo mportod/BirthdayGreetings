@@ -1,3 +1,5 @@
+using System;
+
 namespace BirthdayGreetings;
 
 public interface ISender
