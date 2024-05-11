@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BirthdayGreetings
@@ -24,6 +25,13 @@ namespace BirthdayGreetings
                 LastName = "Ann",
                 BirthDate = new DateOnly(1975, 09, 11),
                 Email = "mary.ann@foobar.com"
+            });
+            _sender.Send(new Friend
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                BirthDate = new DateOnly(1982, 10, 08),
+                Email = "john.doe@foobar.com"
             });
         }
     }
