@@ -1,8 +1,8 @@
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace BirthdayGreetings.Tests
 {
@@ -21,7 +21,6 @@ namespace BirthdayGreetings.Tests
             sender = Substitute.For<ISender>();
             sut = new BirthdayGreetings(clock,friendsReader,sender);
         }
-
 
         [Test]
         public void send_message_to_Mary_Ann_on_his_birthday()
@@ -94,6 +93,23 @@ namespace BirthdayGreetings.Tests
             sender.Received().Send("angela.korvell@mail.com", subject, message);
         }
 
+        [Test]
+        public void send_reminder_message_to_friends_when_mary_is_on_birthday()
+        {
+            var friends = GetFriends();
+            var todayDate = new DateOnly(2024, 09, 11);
+            clock.GetCurrentDate().Returns(todayDate);
+            friendsReader.GetFriends().Returns(friends);
+            var expectedSubject = "Birthday Reminder";
+            
+            sut.Send(todayDate);
+
+            var expectedMessage = GetReminderMessage("John", "Mary", "Ann");
+            sender.Received().Send("john.doe@mail.com", expectedSubject, expectedMessage);
+            expectedMessage = GetReminderMessage("Angela", "Mary", "Ann");
+            sender.Received().Send("angela.korvell@mail.com", expectedSubject, expectedMessage);
+        }
+
         private static List<Friend> GetFriends()
         {
             var friends = new List<Friend>
@@ -121,6 +137,15 @@ namespace BirthdayGreetings.Tests
                 }
             };
             return friends;
+        }
+
+        private static string GetReminderMessage(string name, string birthdayFriendName, string birthdayFriendLastName)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"Dear {name},");
+            stringBuilder.AppendLine($"Today is {birthdayFriendName} {birthdayFriendLastName}'s birthday.");
+            stringBuilder.AppendLine($"Don't forget to send them a message!");
+            return stringBuilder.ToString();
         }
     }
 }

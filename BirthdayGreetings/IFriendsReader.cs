@@ -4,5 +4,5 @@ namespace BirthdayGreetings;
 
 public interface IFriendsReader
 {
-    IEnumerable<Friend> GetFriends();
+    List<Friend> GetFriends();
 }
