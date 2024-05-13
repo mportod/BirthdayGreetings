@@ -11,6 +11,7 @@ public class Friend
 
     public bool IsMyBirthday(DateOnly date)
     {
-        return BirthDate.Month == date.Month && BirthDate.Day == date.Day;
+        return (BirthDate.Month == date.Month && BirthDate.Day == date.Day) ||
+               (BirthDate.Month == date.Month && BirthDate.Day == 29 && date.Day == 28);
     }
 }

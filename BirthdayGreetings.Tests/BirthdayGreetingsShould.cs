@@ -47,6 +47,7 @@ namespace BirthdayGreetings.Tests
             var friends = GetFriends();
             clock.GetCurrentDate().Returns(todayDate);
             friendsReader.GetFriends().Returns(friends);
+            
             sut.Send(todayDate);
 
             sender.Received().Send("john.doe@mail.com", subject, message);
@@ -59,6 +60,7 @@ namespace BirthdayGreetings.Tests
             var friends = GetFriends();
             clock.GetCurrentDate().Returns(todayDate);
             friendsReader.GetFriends().Returns(friends);
+            
             sut.Send(todayDate);
 
             sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -75,6 +77,21 @@ namespace BirthdayGreetings.Tests
             sut.Send(todayDate);
 
             sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [Test]
+        public void send_birthday_message_to_people_born_on_february_twenty_ninth()
+        {
+            var subject = "Happy Birthday!";
+            var message = "Happy Birthday, dear Angela!";
+            var todayDate = new DateOnly(2024, 02, 28);
+            var friends = GetFriends();
+            clock.GetCurrentDate().Returns(todayDate);
+            friendsReader.GetFriends().Returns(friends);
+           
+            sut.Send(todayDate);
+
+            sender.Received().Send("angela.korvell@mail.com", subject, message);
         }
 
         private static List<Friend> GetFriends()
@@ -94,6 +111,13 @@ namespace BirthdayGreetings.Tests
                     LastName = "Doe",
                     BirthDate = new DateOnly(1982, 10, 08),
                     Email = "john.doe@mail.com"
+                },
+                new Friend
+                {
+                    FirstName = "Angela",
+                    LastName = "Korvell",
+                    BirthDate = new DateOnly(2000, 02, 29),
+                    Email = "angela.korvell@mail.com"
                 }
             };
             return friends;
