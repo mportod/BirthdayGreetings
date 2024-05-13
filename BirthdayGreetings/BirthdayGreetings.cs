@@ -24,7 +24,9 @@ namespace BirthdayGreetings
             var birthdayFriends = GetBirthdayFriends(friends, currentDate);
             foreach (var birthdayFriend in birthdayFriends)
             {
-                _sender.Send(birthdayFriend);
+                var subject = "Happy Birthday!";
+                var message = $"Happy Birthday, dear {birthdayFriend.FirstName}!";
+                _sender.Send(birthdayFriend.Email, subject, message);
             }
         }
 

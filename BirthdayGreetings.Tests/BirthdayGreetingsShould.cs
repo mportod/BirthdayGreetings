@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using FluentAssertions.Common;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using NSubstitute;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace BirthdayGreetings.Tests
 {
@@ -27,6 +26,8 @@ namespace BirthdayGreetings.Tests
         [Test]
         public void send_message_to_Mary_Ann_on_his_birthday()
         {
+            var subject = "Happy Birthday!";
+            var message = "Happy Birthday, dear Mary!";
             var todayDate = new DateOnly(2024,09,11);
             var friends = GetFriends();
             clock.GetCurrentDate().Returns(todayDate);
@@ -34,20 +35,21 @@ namespace BirthdayGreetings.Tests
 
             sut.Send(todayDate);
 
-            sender.Received().Send(Arg.Is<Friend>(f => f.FirstName == "Mary" && f.LastName == "Ann"));
+            sender.Received().Send("mary.ann@mail.com", subject,message);
         }
         
         [Test]
         public void send_message_to_John_Doe_on_his_birthday()
         {
+            var subject = "Happy Birthday!";
+            var message = "Happy Birthday, dear John!";
             var todayDate = new DateOnly(2024, 10, 08);
             var friends = GetFriends();
             clock.GetCurrentDate().Returns(todayDate);
             friendsReader.GetFriends().Returns(friends);
-
             sut.Send(todayDate);
 
-            sender.Received().Send(Arg.Is<Friend>(f => f.FirstName == "John" && f.LastName == "Doe"));
+            sender.Received().Send("john.doe@mail.com", subject, message);
         }
 
         [Test]
@@ -57,10 +59,9 @@ namespace BirthdayGreetings.Tests
             var friends = GetFriends();
             clock.GetCurrentDate().Returns(todayDate);
             friendsReader.GetFriends().Returns(friends);
-
             sut.Send(todayDate);
 
-            sender.DidNotReceive().Send(Arg.Is<Friend>(f => f.FirstName == "John" && f.LastName == "Doe"));
+            sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]
@@ -73,7 +74,7 @@ namespace BirthdayGreetings.Tests
 
             sut.Send(todayDate);
 
-            sender.DidNotReceive().Send(Arg.Any<Friend>());
+            sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
 
         private static List<Friend> GetFriends()
@@ -85,14 +86,14 @@ namespace BirthdayGreetings.Tests
                     FirstName = "Mary",
                     LastName = "Ann",
                     BirthDate = new DateOnly(1975, 09, 11),
-                    Email = "mary.ann@foobar.com"
+                    Email = "mary.ann@mail.com"
                 },
                 new Friend
                 {
                     FirstName = "John",
                     LastName = "Doe",
                     BirthDate = new DateOnly(1982, 10, 08),
-                    Email = "john.doe@foobar.com"
+                    Email = "john.doe@mail.com"
                 }
             };
             return friends;

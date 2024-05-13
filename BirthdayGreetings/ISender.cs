@@ -4,5 +4,5 @@ namespace BirthdayGreetings;
 
 public interface ISender
 {
-    public void Send(Friend friend);
+    public void Send(string emailTo, string subject, string message);
 }
