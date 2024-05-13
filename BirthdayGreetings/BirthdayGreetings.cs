@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BirthdayGreetings
 {
@@ -13,7 +11,6 @@ namespace BirthdayGreetings
         private readonly IClock _clock;
         private readonly IFriendsReader _friendsReader;
         private readonly ISender _sender;
-        
 
         public BirthdayGreetings(IClock clock, IFriendsReader friendsReader, ISender sender)
         {
@@ -27,37 +24,20 @@ namespace BirthdayGreetings
             var currentDate = _clock.GetCurrentDate();
             var friends = _friendsReader.GetFriends();
 
-            var birthdayFriends = GetBirthdayFriends(friends, currentDate);
+            var birthdayFriends = friends.Where(f => f.IsMyBirthday(currentDate)).ToList();
+            var reminderFriends = friends.Except(birthdayFriends).ToList();
+
             foreach (var birthdayFriend in birthdayFriends)
-            {   
-                _sender.Send(birthdayFriend.Email,
-                    HappyBirthdaySubject,
-                    string.Format(HappyBirthdayMessage,birthdayFriend.FirstName));
+            {
+                _sender.Send(birthdayFriend.Email, HappyBirthdaySubject, string.Format(HappyBirthdayMessage, birthdayFriend.FirstName));
             }
 
-            var reminderFriends = friends.Except(birthdayFriends).ToList();
+            var birthdayFriendsNames = birthdayFriends.Select(f => $"{f.FirstName} {f.LastName}").ToList();
             foreach (var reminderFriend in reminderFriends)
             {
-                foreach (var birthdayFriend in birthdayFriends)
-                {
-                    var message = GetReminderMessage(reminderFriend.FirstName, birthdayFriend.FirstName, birthdayFriend.LastName);
-                    _sender.Send(reminderFriend.Email, ReminderSubject, message);
-                }
+                var reminderMessage = $"Dear {reminderFriend.FirstName},\nToday is {string.Join(", ", birthdayFriendsNames)}\nDon't forget to send them a message!";
+                _sender.Send(reminderFriend.Email, ReminderSubject, reminderMessage);
             }
-        }
-
-        private static List<Friend> GetBirthdayFriends(IEnumerable<Friend> friends, DateOnly currentDate)
-        {
-            return friends.Where(f => f.IsMyBirthday(currentDate)).ToList();
-        }
-
-        private static string GetReminderMessage(string name, string birthdayFriendName, string birthdayFriendLastName)
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Dear {name},");
-            stringBuilder.AppendLine($"Today is {birthdayFriendName} {birthdayFriendLastName}'s birthday.");
-            stringBuilder.AppendLine($"Don't forget to send them a message!");
-            return stringBuilder.ToString();
         }
     }
 }

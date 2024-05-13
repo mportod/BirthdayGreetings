@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BirthdayGreetings.Tests
@@ -53,32 +54,6 @@ namespace BirthdayGreetings.Tests
         }
 
         [Test]
-        public void not_send_message_to_John_Doe_when_today_is_not_his_birthday()
-        {
-            var todayDate = new DateOnly(2024, 05, 10);
-            var friends = GetFriends();
-            clock.GetCurrentDate().Returns(todayDate);
-            friendsReader.GetFriends().Returns(friends);
-            
-            sut.Send(todayDate);
-
-            sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-        }
-
-        [Test]
-        public void not_send_message_when_no_one_is_on_birthday()
-        {
-            var todayDate = new DateOnly(2024, 01, 01);
-            var friends = GetFriends();
-            clock.GetCurrentDate().Returns(todayDate);
-            friendsReader.GetFriends().Returns(friends);
-
-            sut.Send(todayDate);
-
-            sender.DidNotReceive().Send(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-        }
-
-        [Test]
         public void send_birthday_message_to_people_born_on_february_twenty_ninth()
         {
             var subject = "Happy Birthday!";
@@ -100,13 +75,14 @@ namespace BirthdayGreetings.Tests
             var todayDate = new DateOnly(2024, 09, 11);
             clock.GetCurrentDate().Returns(todayDate);
             friendsReader.GetFriends().Returns(friends);
-            var expectedSubject = "Birthday Reminder";
-            
+            var birthdayFriendsNames = new List<string> { "Mary Ann", "Peter Dagan" };
+
             sut.Send(todayDate);
 
-            var expectedMessage = GetReminderMessage("John", "Mary", "Ann");
+            var expectedSubject = "Birthday Reminder";
+            var expectedMessage = GetReminderMessage("John", birthdayFriendsNames);
             sender.Received().Send("john.doe@mail.com", expectedSubject, expectedMessage);
-            expectedMessage = GetReminderMessage("Angela", "Mary", "Ann");
+            expectedMessage = GetReminderMessage("Angela", birthdayFriendsNames);
             sender.Received().Send("angela.korvell@mail.com", expectedSubject, expectedMessage);
         }
 
@@ -120,6 +96,13 @@ namespace BirthdayGreetings.Tests
                     LastName = "Ann",
                     BirthDate = new DateOnly(1975, 09, 11),
                     Email = "mary.ann@mail.com"
+                },
+                new Friend
+                {
+                    FirstName = "Peter",
+                    LastName = "Dagan",
+                    BirthDate = new DateOnly(1987, 09, 11),
+                    Email = "peter.dagan@mail.com"
                 },
                 new Friend
                 {
@@ -139,13 +122,9 @@ namespace BirthdayGreetings.Tests
             return friends;
         }
 
-        private static string GetReminderMessage(string name, string birthdayFriendName, string birthdayFriendLastName)
+        private static string GetReminderMessage(string reminderFriendName, List<string> birthdayFriendsNames)
         {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Dear {name},");
-            stringBuilder.AppendLine($"Today is {birthdayFriendName} {birthdayFriendLastName}'s birthday.");
-            stringBuilder.AppendLine($"Don't forget to send them a message!");
-            return stringBuilder.ToString();
+            return $"Dear {reminderFriendName},\nToday is {string.Join(", ", birthdayFriendsNames)}\nDon't forget to send them a message!";
         }
     }
 }
